@@ -53,10 +53,15 @@ public class GameModel {
         int newRow = currentRow;
         int newCol = currentCol;
 
-        if (direction == Direction.UP) newRow--;
-        else if (direction == Direction.DOWN) newRow++;
-        else if (direction == Direction.LEFT) newCol--;
-        else if (direction == Direction.RIGHT) newCol++;
+        if (direction == Direction.UP) {
+            newRow--;
+        } else if (direction == Direction.DOWN) {
+            newRow++;
+        } else if (direction == Direction.LEFT) {
+            newCol--;
+        } else if (direction == Direction.RIGHT) {
+            newCol++;
+        }
 
         if (newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols) {
             System.out.println("player wanted to move out of the board!");
@@ -78,6 +83,7 @@ public class GameModel {
         player.setCol(newCol);
         board[newRow][newCol].setType(Cell.CellType.PLAYER);
     }
+
     public void initiateEnemy() {
         int r;
         int c;
@@ -92,6 +98,38 @@ public class GameModel {
         enemy = new Enemy(r, c);
         board[r][c].setType(Cell.CellType.ENEMY);
     }
+
+    public void moveEnemy(Direction direction) {
+        int currentRow = enemy.getRow();
+        int currentCol = enemy.getCol();
+        int newRow = currentRow;
+        int newCol = currentCol;
+
+        if (direction == Direction.UP) {
+            newRow--;
+        } else if (direction == Direction.DOWN) {
+            newRow++;
+        } else if (direction == Direction.LEFT) {
+            newCol--;
+        } else if (direction == Direction.RIGHT) newCol++;
+
+
+        if (newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols) {
+            System.out.println("enemy wanted to move out of the board");
+            return;
+        }
+        if (board[newRow][newCol].getType() == Cell.CellType.WALL) {
+            System.out.println("enemy hit the wall");
+            return;
+        }
+        board[currentRow][currentCol].setType(Cell.CellType.EMPTY);
+        enemy.setRow(newRow);
+        enemy.setCol(newCol);
+        board[newRow][newCol].setType(Cell.CellType.ENEMY);
+
+    }
+
+
     public int getRows() {
         return rows;
     }
