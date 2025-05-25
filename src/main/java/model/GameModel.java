@@ -28,9 +28,9 @@ public class GameModel {
                     board[r][c] = new Cell(Cell.CellType.WALL);
                 } else if (chance < 0.3) {
                     board[r][c] = new Cell(Cell.CellType.POINT);
-                } else if (chance < 0.5)
+                } else {
                     board[r][c] = new Cell(Cell.CellType.EMPTY);
-            }
+            }}
         }
     }
 
