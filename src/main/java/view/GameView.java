@@ -26,7 +26,7 @@ public class GameView extends JFrame {
 
         setVisible(true);
 
-        // Ustaw focus na tabelę po wyświetleniu okna
+
         SwingUtilities.invokeLater(() -> gameTable.requestFocusInWindow());
 
         setupKeyBindings();
@@ -43,7 +43,7 @@ public class GameView extends JFrame {
         scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         gameTable.setRowHeight(cellSize);
-        // WAŻNE: nie wyłączaj setEnabled, by móc odbierać zdarzenia klawiatury
+
         gameTable.setEnabled(true);
         gameTable.setTableHeader(null);
         gameTable.setBackground(new Color(10, 15, 40));
