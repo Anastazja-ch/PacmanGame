@@ -5,78 +5,108 @@ import model.GameModel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionEvent;
 
 public class GameView extends JFrame {
 
-    private GameModel gameModel;
-    private JTable jTable;
+    private final GameModel gameModel;
+    private final JTable gameTable;
+    private final GameTableModel tableModel;
+    private final JLabel scoreLabel = new JLabel("Score: 0");
 
-
-    public GameView(GameModel gameModel) throws HeadlessException {
+    public GameView(GameModel gameModel) {
         this.gameModel = gameModel;
+        this.tableModel = new GameTableModel(gameModel);
+        this.gameTable = new JTable(tableModel);
 
-        setTitle("Pac Man");
+        setTitle("Pac-Man");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 800);
-        setLocationRelativeTo(null);
+
         initUI();
+
         setVisible(true);
-        setFocusable(true);
-        requestFocusInWindow();
-        enableEvents(AWTEvent.KEY_EVENT_MASK);
 
+        // Ustaw focus na tabelę po wyświetleniu okna
+        SwingUtilities.invokeLater(() -> gameTable.requestFocusInWindow());
 
+        setupKeyBindings();
     }
-
 
     private void initUI() {
         int rows = gameModel.getRows();
         int cols = gameModel.getCols();
-        int windowSize = 600; // rozmiar całego okna
-        int cellSize = windowSize / Math.max(rows, cols); // rozmiar komórki
+        int windowSize = 600;
+        int cellSize = windowSize / Math.max(rows, cols);
 
-        jTable = new JTable(new GameTableModel(gameModel));
-        jTable.setRowHeight(cellSize);
-        jTable.setEnabled(false);
-        jTable.setTableHeader(null);
+        scoreLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        scoreLabel.setForeground(Color.YELLOW);
+        scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Granatowe tło i brak siatki
-        jTable.setBackground(new Color(10, 15, 40));
-        jTable.setShowGrid(false);
+        gameTable.setRowHeight(cellSize);
+        // WAŻNE: nie wyłączaj setEnabled, by móc odbierać zdarzenia klawiatury
+        gameTable.setEnabled(true);
+        gameTable.setTableHeader(null);
+        gameTable.setBackground(new Color(10, 15, 40));
+        gameTable.setShowGrid(false);
+        gameTable.setCellSelectionEnabled(false);
+        gameTable.setRowSelectionAllowed(false);
+        gameTable.setColumnSelectionAllowed(false);
 
-        // Ustaw szerokość kolumn
         for (int i = 0; i < cols; i++) {
-            jTable.getColumnModel().getColumn(i).setPreferredWidth(cellSize);
+            gameTable.getColumnModel().getColumn(i).setPreferredWidth(cellSize);
         }
 
-        // Dodaj tabelę bez scrolla
+        gameTable.setDefaultRenderer(Object.class, new CellRenderer());
+
         setLayout(new BorderLayout());
-        add(jTable, BorderLayout.CENTER);
+        add(scoreLabel, BorderLayout.NORTH);
+        add(gameTable, BorderLayout.CENTER);
 
         setSize(windowSize, windowSize);
         setResizable(false);
         setLocationRelativeTo(null);
     }
 
+    private void setupKeyBindings() {
+        InputMap inputMap = gameTable.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap actionMap = gameTable.getActionMap();
 
-    @Override
-    protected void processKeyEvent(KeyEvent e) {
-        if (e.getID() != KeyEvent.KEY_PRESSED) return;
+        inputMap.put(KeyStroke.getKeyStroke("UP"), "moveUp");
+        actionMap.put("moveUp", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                movePlayer(Direction.UP);
+            }
+        });
 
-        Direction direction = switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP -> Direction.UP;
-            case KeyEvent.VK_DOWN -> Direction.DOWN;
-            case KeyEvent.VK_LEFT -> Direction.LEFT;
-            case KeyEvent.VK_RIGHT -> Direction.RIGHT;
-            default -> null;
-        };
+        inputMap.put(KeyStroke.getKeyStroke("DOWN"), "moveDown");
+        actionMap.put("moveDown", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                movePlayer(Direction.DOWN);
+            }
+        });
 
-        if (direction != null) {
-            gameModel.movePlayer(direction);
-            jTable.repaint();
-        }
+        inputMap.put(KeyStroke.getKeyStroke("LEFT"), "moveLeft");
+        actionMap.put("moveLeft", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                movePlayer(Direction.LEFT);
+            }
+        });
+
+        inputMap.put(KeyStroke.getKeyStroke("RIGHT"), "moveRight");
+        actionMap.put("moveRight", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                movePlayer(Direction.RIGHT);
+            }
+        });
     }
 
-
+    private void movePlayer(Direction direction) {
+        gameModel.movePlayer(direction);
+        tableModel.fireTableDataChanged();
+        scoreLabel.setText("Score: " + gameModel.getPlayer().getScore());
+    }
 }
