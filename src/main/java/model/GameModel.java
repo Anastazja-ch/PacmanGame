@@ -1,7 +1,5 @@
 package model;
 
-import controller.PlayerController;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -30,7 +28,7 @@ public class GameModel {
 
 
         initiatePlayer();
-        initiateEnemies(4);
+        initiateEnemies(2);
         startPowerUpSpawner();
 
 

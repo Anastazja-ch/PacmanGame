@@ -8,10 +8,10 @@ public class CellTypeVisuals {
     private static final HashMap<String, ImageIcon> iconMap = new HashMap<>();
 
     static {
-        loadIcon("PLAYER", "/images/pacman.png");
-        loadIcon("ENEMY", "/images/ghost.png");
-        loadIcon("POINT", "/images/dot.png");
-        loadIcon("WALL", "/images/wall.png");
+        loadIcon("PLAYER", "images/pacman.png");
+        loadIcon("ENEMY", "images/ghost.png");
+        loadIcon("POINT", "images/dot.png");
+        loadIcon("WALL", "images/wall.png");
         loadIcon("POWER_UP", "/images/strawberry.png");
     }
 

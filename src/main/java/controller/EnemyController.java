@@ -35,7 +35,7 @@ public class EnemyController implements Runnable {
             }
 
             try {
-                Thread.sleep(150); // wspólna prędkość
+                Thread.sleep(150);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

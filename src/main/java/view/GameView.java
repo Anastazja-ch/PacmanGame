@@ -34,12 +34,11 @@ public class GameView extends JFrame {
         playerThread.setDaemon(true);
         playerThread.start();
 
-        setVisible(true);
         updateGame();
         SwingUtilities.invokeLater(() -> gameTable.requestFocusInWindow());
 
         setupKeyBindings();
-
+        setVisible(true);
 
     }
 
@@ -119,5 +118,8 @@ public class GameView extends JFrame {
     public void updateGame() {
         tableModel.fireTableDataChanged();
         scoreLabel.setText("Score: " + gameModel.getPlayer().getScore());
+        gameTable.repaint();
     }
+
+
 }

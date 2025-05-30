@@ -32,7 +32,7 @@ public class PlayerController implements Runnable {
                 view.updateGame();
             }
             try {
-                Thread.sleep(150); // Płynność ruchu
+                Thread.sleep(150);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

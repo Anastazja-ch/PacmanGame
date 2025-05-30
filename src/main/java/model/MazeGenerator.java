@@ -29,7 +29,7 @@ public class MazeGenerator {
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                if (board[i][j].getType() == Cell.CellType.EMPTY && random.nextDouble() < 0.99) {
+                if (board[i][j].getType() == Cell.CellType.EMPTY && random.nextDouble() < 0.5) {
                     board[i][j].setType(Cell.CellType.POINT);
                 }
             }
