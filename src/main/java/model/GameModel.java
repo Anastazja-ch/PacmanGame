@@ -1,5 +1,9 @@
 package model;
 
+import controller.PlayerController;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class GameModel {
@@ -7,19 +11,27 @@ public class GameModel {
     private final int cols;
     private Cell[][] board;
     private Player player;
-    private Enemy enemy;
+    private final List<Enemy> enemies = new ArrayList<>();
+
     private Random random;
+
+
+    private final List<PowerUp> powerUps = new ArrayList<>();
+    private boolean enemiesFrozen = false;
 
     public GameModel(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
         this.random = new Random();
 
+
         MazeGenerator generator = new MazeGenerator(rows, cols);
         this.board = generator.generate();
 
+
         initiatePlayer();
-        initiateEnemy();
+        initiateEnemies(4);
+        startPowerUpSpawner();
 
 
     }
@@ -69,55 +81,118 @@ public class GameModel {
             System.out.println("player got a score " + player.getScore());
         }
 
+        if (board[newRow][newCol].getType() == Cell.CellType.POWER_UP) {
+            PowerUp collected = null;
+            for (PowerUp p : powerUps) {
+                if (p.getRow() == newRow && p.getCol() == newCol) {
+                    collected = p;
+                    break;
+                }
+            }
+
+            if (collected != null) {
+                collected.applyEffect(player);
+                powerUps.remove(collected);
+            }
+        }
+
+
         board[currentRow][currentCol].setType(Cell.CellType.EMPTY);
         player.setRow(newRow);
         player.setCol(newCol);
         board[newRow][newCol].setType(Cell.CellType.PLAYER);
     }
 
-    public void initiateEnemy() {
-        int r;
-        int c;
-        do {
-            r = random.nextInt(rows);
-            c = random.nextInt(cols);
-        } while (
-                board[r][c].getType() != Cell.CellType.EMPTY ||
-                        (r == player.getRow() && c == player.getCol())
-        );
+    public void initiateEnemies(int count) {
+        for (int i = 0; i < count; i++) {
+            int r, c;
+            do {
+                r = random.nextInt(rows);
+                c = random.nextInt(cols);
+            } while (
+                    board[r][c].getType() != Cell.CellType.EMPTY ||
+                            (r == player.getRow() && c == player.getCol())
+            );
 
-        enemy = new Enemy(r, c);
-        board[r][c].setType(Cell.CellType.ENEMY);
+            Enemy e = new Enemy(r, c);
+            enemies.add(e);
+            board[r][c].setType(Cell.CellType.ENEMY);
+        }
     }
 
-    public void moveEnemy(Direction direction) {
+
+    public void moveEnemy(Enemy enemy, Direction direction) {
         int currentRow = enemy.getRow();
         int currentCol = enemy.getCol();
         int newRow = currentRow;
         int newCol = currentCol;
 
-        if (direction == Direction.UP) {
-            newRow--;
-        } else if (direction == Direction.DOWN) {
-            newRow++;
-        } else if (direction == Direction.LEFT) {
-            newCol--;
-        } else if (direction == Direction.RIGHT) newCol++;
-
-
-        if (newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols) {
-            System.out.println("enemy wanted to move out of the board");
-            return;
+        switch (direction) {
+            case UP -> newRow--;
+            case DOWN -> newRow++;
+            case LEFT -> newCol--;
+            case RIGHT -> newCol++;
         }
-        if (board[newRow][newCol].getType() == Cell.CellType.WALL) {
-            System.out.println("enemy hit the wall");
-            return;
+
+        if (newRow < 0 || newRow >= rows || newCol < 0 || newCol >= cols) return;
+
+        Cell target = board[newRow][newCol];
+        if (target.getType() == Cell.CellType.WALL || target.getType() == Cell.CellType.ENEMY) return;
+
+        if (target.getType() != Cell.CellType.PLAYER) {
+            board[newRow][newCol].setType(Cell.CellType.ENEMY);
         }
+
         board[currentRow][currentCol].setType(Cell.CellType.EMPTY);
+
         enemy.setRow(newRow);
         enemy.setCol(newCol);
-        board[newRow][newCol].setType(Cell.CellType.ENEMY);
+    }
 
+
+    private void startPowerUpSpawner() {
+        Thread spawner = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(5000); // co 5 sekund
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                if (random.nextDouble() <= 0.25) {
+                    int r, c;
+                    do {
+                        r = random.nextInt(rows);
+                        c = random.nextInt(cols);
+                    } while (board[r][c].getType() != Cell.CellType.EMPTY);
+
+                    PowerUpType[] types = PowerUpType.values();
+                    PowerUpType randomType = types[random.nextInt(types.length)];
+
+                    PowerUp powerUp = new PowerUp(r, c, randomType);
+                    powerUps.add(powerUp);
+                    board[r][c].setType(Cell.CellType.POWER_UP);
+
+                    System.out.println("Generated power-up: " + randomType + " at " + r + "," + c);
+                }
+            }
+        });
+        spawner.setDaemon(true);
+        spawner.start();
+    }
+
+    public void freezeEnemies(int durationMillis) {
+        enemiesFrozen = true;
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(durationMillis);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            enemiesFrozen = false;
+            System.out.println("Enemies unfrozen!");
+        }).start();
     }
 
 
@@ -137,8 +212,13 @@ public class GameModel {
         return player;
     }
 
-    public Enemy getEnemy() {
-        return enemy;
+    public List<Enemy> getEnemies() {
+        return enemies;
+    }
+
+
+    public boolean isEnemiesFrozen() {
+        return enemiesFrozen;
     }
 }
 

@@ -1,5 +1,6 @@
 package view;
 
+import controller.PlayerController;
 import model.Direction;
 import model.GameModel;
 
@@ -14,6 +15,10 @@ public class GameView extends JFrame {
     private final GameTableModel tableModel;
     private final JLabel scoreLabel = new JLabel("Score: 0");
 
+    private final PlayerController playerController;
+    private final Thread playerThread;
+
+
     public GameView(GameModel gameModel) {
         this.gameModel = gameModel;
         this.tableModel = new GameTableModel(gameModel);
@@ -24,12 +29,18 @@ public class GameView extends JFrame {
 
         initUI();
 
+        playerController = new PlayerController(gameModel, this);
+        playerThread = new Thread(playerController);
+        playerThread.setDaemon(true);
+        playerThread.start();
+
         setVisible(true);
-
-
+        updateGame();
         SwingUtilities.invokeLater(() -> gameTable.requestFocusInWindow());
 
         setupKeyBindings();
+
+
     }
 
     private void initUI() {
@@ -43,7 +54,6 @@ public class GameView extends JFrame {
         scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         gameTable.setRowHeight(cellSize);
-
         gameTable.setEnabled(true);
         gameTable.setTableHeader(null);
         gameTable.setBackground(new Color(10, 15, 40));
@@ -65,6 +75,8 @@ public class GameView extends JFrame {
         setSize(windowSize, windowSize);
         setResizable(false);
         setLocationRelativeTo(null);
+
+
     }
 
     private void setupKeyBindings() {
@@ -75,7 +87,7 @@ public class GameView extends JFrame {
         actionMap.put("moveUp", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                movePlayer(Direction.UP);
+                playerController.setDirection(Direction.UP);
             }
         });
 
@@ -83,7 +95,7 @@ public class GameView extends JFrame {
         actionMap.put("moveDown", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                movePlayer(Direction.DOWN);
+                playerController.setDirection(Direction.DOWN);
             }
         });
 
@@ -91,7 +103,7 @@ public class GameView extends JFrame {
         actionMap.put("moveLeft", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                movePlayer(Direction.LEFT);
+                playerController.setDirection(Direction.LEFT);
             }
         });
 
@@ -99,13 +111,12 @@ public class GameView extends JFrame {
         actionMap.put("moveRight", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                movePlayer(Direction.RIGHT);
+                playerController.setDirection(Direction.RIGHT);
             }
         });
     }
 
-    private void movePlayer(Direction direction) {
-        gameModel.movePlayer(direction);
+    public void updateGame() {
         tableModel.fireTableDataChanged();
         scoreLabel.setText("Score: " + gameModel.getPlayer().getScore());
     }
