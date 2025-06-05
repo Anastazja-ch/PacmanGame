@@ -53,6 +53,7 @@ public class GameView extends JFrame {
         setVisible(true);
     }
 
+
     private void initUI() {
         int rows = gameModel.getRows();
         int cols = gameModel.getCols();
@@ -181,7 +182,31 @@ public class GameView extends JFrame {
                 playerController.setDirection(Direction.RIGHT);
             }
         });
+
+        InputMap windowInputMap = getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap windowActionMap = getRootPane().getActionMap();
+
+        windowInputMap.put(KeyStroke.getKeyStroke("meta shift X"), "quitToMenu");
+        windowActionMap.put("quitToMenu", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int confirm = JOptionPane.showConfirmDialog(
+                        GameView.this,
+                        "Czy na pewno chcesz wrócić do menu?",
+                        "Powrót do menu",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (confirm == JOptionPane.YES_OPTION) {
+                    dispose();
+                    new MenuView();
+                }
+            }
+        });
     }
+//na macbooku systomowo odpala sie komunikat czy chce wylaczyc dzialanie wszystkich aplikacji, stad zmiana na "x"
+// oraz zmienilam crtl na meta ze wzgledu na to ze pracuje na macbooku:)
+
+
 
     public void updateGame() {
         if (gameModel.isGameOver() && !gameOverDisplayed) {
@@ -238,9 +263,9 @@ public class GameView extends JFrame {
         dialog.setVisible(true);
 
 
-        }
-
     }
+
+}
 
 
 

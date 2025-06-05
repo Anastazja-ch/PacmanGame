@@ -1,46 +1,61 @@
 package view;
 
+import model.ScoreEntry;
+
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class HighScores {
+    private static final String FILE_NAME = "scores.ser";
 
-    private static final String FILE_NAME = "scores.txt";
-
-    public static void addScore(String playerName, int score) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
-            writer.write(playerName + "," + score);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void addScore(String name, int score) {
+        List<ScoreEntry> scores = loadScores();
+        scores.add(new ScoreEntry(name, score));
+        saveScores(scores);
     }
 
     public static List<String> getTopScores(int limit) {
-        List<String> scores = new ArrayList<>();
+        List<ScoreEntry> scores = loadScores();
+        scores.sort(Comparator.comparingInt(ScoreEntry::getScore).reversed());
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            List<String[]> entries = new ArrayList<>();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length == 2) {
-                    entries.add(parts);
+        List<String> top = new ArrayList<>();
+        for (int i = 0; i < Math.min(limit, scores.size()); i++) {
+            ScoreEntry s = scores.get(i);
+            top.add(s.getName() + " - " + s.getScore());
+        }
+        return top;
+    }
+
+    private static List<ScoreEntry> loadScores() {
+        List<ScoreEntry> result = new ArrayList<>();
+
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+            Object obj = in.readObject();
+            if (obj instanceof List<?> rawList) {
+                for (Object item : rawList) {
+                    if (item instanceof ScoreEntry score) {
+                        result.add(score);
+                    }
                 }
             }
-
-
-            entries.sort((a, b) -> Integer.compare(Integer.parseInt(b[1]), Integer.parseInt(a[1])));
-
-            for (int i = 0; i < Math.min(limit, entries.size()); i++) {
-                scores.add(entries.get(i)[0] + " - " + entries.get(i)[1]);
-
-            }
-
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        return scores;
+        return result;
+    }
+
+
+
+
+
+    private static void saveScores(List<ScoreEntry> scores) {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+            out.writeObject(scores);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

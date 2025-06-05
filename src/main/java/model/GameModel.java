@@ -3,6 +3,7 @@ package model;
 import view.GameView;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -150,7 +151,7 @@ public class GameModel {
         Cell target = board[newRow][newCol];
         if (target.getType() == Cell.CellType.WALL || target.getType() == Cell.CellType.ENEMY) return;
 
-        // 👾 KOLIZJA Z GRACZEM
+
         if (target.getType() == Cell.CellType.PLAYER) {
             player.loseLife();
             System.out.println("Kolizja! Pozostałe życia: " + player.getLives());
