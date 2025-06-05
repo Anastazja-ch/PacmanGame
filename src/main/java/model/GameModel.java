@@ -1,5 +1,8 @@
 package model;
 
+import view.GameView;
+
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -7,11 +10,19 @@ import java.util.Random;
 public class GameModel {
     private final int rows;
     private final int cols;
-    private Cell[][] board;
+    private final Cell[][] board;
     private Player player;
     private final List<Enemy> enemies = new ArrayList<>();
 
-    private Random random;
+    private GameView view;
+    private boolean gameOverShown = false;
+
+    public void setView(GameView view) {
+        this.view = view;
+    }
+
+
+    private final Random random;
 
 
     private final List<PowerUp> powerUps = new ArrayList<>();
@@ -120,6 +131,8 @@ public class GameModel {
 
 
     public void moveEnemy(Enemy enemy, Direction direction) {
+        if (player.getLives() <= 0 || gameOverShown) return;
+
         int currentRow = enemy.getRow();
         int currentCol = enemy.getCol();
         int newRow = currentRow;
@@ -137,12 +150,39 @@ public class GameModel {
         Cell target = board[newRow][newCol];
         if (target.getType() == Cell.CellType.WALL || target.getType() == Cell.CellType.ENEMY) return;
 
-        if (target.getType() != Cell.CellType.PLAYER) {
-            board[newRow][newCol].setType(Cell.CellType.ENEMY);
+        // 👾 KOLIZJA Z GRACZEM
+        if (target.getType() == Cell.CellType.PLAYER) {
+            player.loseLife();
+            System.out.println("Kolizja! Pozostałe życia: " + player.getLives());
+
+            if (player.getLives() <= 0 && !gameOverShown) {
+                gameOverShown = true;
+
+                SwingUtilities.invokeLater(() -> {
+                    if (view != null) {
+                        view.showGameOverDialog();
+                    }
+                });
+
+                return;
+            } else {
+
+                int r, c;
+                do {
+                    r = random.nextInt(rows);
+                    c = random.nextInt(cols);
+                } while (board[r][c].getType() != Cell.CellType.EMPTY);
+
+                board[player.getRow()][player.getCol()].setType(Cell.CellType.EMPTY);
+                player.setRow(r);
+                player.setCol(c);
+                board[r][c].setType(Cell.CellType.PLAYER);
+            }
         }
 
-        board[currentRow][currentCol].setType(Cell.CellType.EMPTY);
 
+        board[currentRow][currentCol].setType(Cell.CellType.EMPTY);
+        board[newRow][newCol].setType(Cell.CellType.ENEMY);
         enemy.setRow(newRow);
         enemy.setCol(newCol);
     }
@@ -152,7 +192,7 @@ public class GameModel {
         Thread spawner = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(5000); // co 5 sekund
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -179,19 +219,20 @@ public class GameModel {
         spawner.start();
     }
 
-    public void freezeEnemies(int durationMillis) {
-        enemiesFrozen = true;
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(durationMillis);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            enemiesFrozen = false;
-            System.out.println("Enemies unfrozen!");
-        }).start();
+    public boolean isGameOver() {
+        return player.getLives() <= 0;
     }
+
+
+    public boolean isGameOverShown() {
+        return gameOverShown;
+    }
+
+    public void setGameOverShown(boolean shown) {
+        this.gameOverShown = shown;
+    }
+
+
 
 
     public int getRows() {

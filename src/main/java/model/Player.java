@@ -11,6 +11,8 @@ public class Player {
 
     private boolean hasPowerUp;
 
+    private int lives = 3;
+
     public Player(int startRow, int startCol) {
         this.row = startRow;
         this.col = startCol;
@@ -69,6 +71,20 @@ public class Player {
 
     public void setHasPowerUp(boolean hasPowerUp) {
         this.hasPowerUp = hasPowerUp;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public void loseLife() {
+        if (lives > 0) {
+            lives--;
+        }
+    }
+
+    public void resetLives() {
+        lives = 3;
     }
 }
 
