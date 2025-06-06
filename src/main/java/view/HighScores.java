@@ -48,9 +48,6 @@ public class HighScores {
     }
 
 
-
-
-
     private static void saveScores(List<ScoreEntry> scores) {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             out.writeObject(scores);

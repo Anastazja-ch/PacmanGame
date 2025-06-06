@@ -16,6 +16,8 @@ public class GameView extends JFrame {
     private final JTable gameTable;
     private final GameTableModel tableModel;
     private final JLabel scoreLabel = new JLabel("Score: 0");
+    private final JLabel timeLabel = new JLabel("Time: 00:00");
+    private int secondsElapsed = 0;
 
     private final PlayerController playerController;
     private final JPanel livesPanel = new JPanel();
@@ -48,9 +50,10 @@ public class GameView extends JFrame {
 
         updateGame();
         SwingUtilities.invokeLater(gameTable::requestFocusInWindow);
-
+        startGameTimer();
         setupKeyBindings();
         setVisible(true);
+
     }
 
 
@@ -63,7 +66,11 @@ public class GameView extends JFrame {
 
         scoreLabel.setFont(new Font("Arial", Font.BOLD, 20));
         scoreLabel.setForeground(Color.YELLOW);
-        scoreLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        scoreLabel.setHorizontalAlignment(SwingConstants.LEFT);
+
+        timeLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        timeLabel.setForeground(Color.WHITE);
+        timeLabel.setHorizontalAlignment(SwingConstants.LEFT);
 
         gameTable.setRowHeight(cellSize);
         gameTable.setEnabled(true);
@@ -84,13 +91,19 @@ public class GameView extends JFrame {
         livesPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         updateLivesDisplay();
 
+
+        JPanel leftInfoPanel = new JPanel(new GridLayout(2, 1));
+        leftInfoPanel.setBackground(new Color(10, 15, 40));
+        leftInfoPanel.add(scoreLabel);
+        leftInfoPanel.add(timeLabel);
+
         setLayout(new BorderLayout());
         JPanel topBar = new JPanel(new BorderLayout());
         topBar.setBackground(new Color(10, 15, 40));
-        topBar.add(scoreLabel, BorderLayout.WEST);
+        topBar.add(leftInfoPanel, BorderLayout.WEST);
         topBar.add(livesPanel, BorderLayout.EAST);
-        add(topBar, BorderLayout.NORTH);
 
+        add(topBar, BorderLayout.NORTH);
         add(gameTable, BorderLayout.CENTER);
 
         int windowWidth = cellSize * cols;
@@ -99,6 +112,7 @@ public class GameView extends JFrame {
         setResizable(false);
         setLocationRelativeTo(null);
     }
+
 
     private void updateLivesDisplay() {
         int lives = gameModel.getPlayer().getLives();
@@ -207,7 +221,6 @@ public class GameView extends JFrame {
 // oraz zmienilam crtl na meta ze wzgledu na to ze pracuje na macbooku:)
 
 
-
     public void updateGame() {
         if (gameModel.isGameOver() && !gameOverDisplayed) {
             gameOverDisplayed = true;
@@ -264,6 +277,29 @@ public class GameView extends JFrame {
 
 
     }
+
+    private void startGameTimer() {
+        Thread timerThread = new Thread(() -> {
+            while (!gameModel.isGameOver()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                secondsElapsed++;
+
+                int minutes = secondsElapsed / 60;
+                int seconds = secondsElapsed % 60;
+                String timeStr = String.format("Time: %02d:%02d", minutes, seconds);
+
+                SwingUtilities.invokeLater(() -> timeLabel.setText(timeStr));
+            }
+        });
+        timerThread.setDaemon(true);
+        timerThread.start();
+    }
+
 
 }
 

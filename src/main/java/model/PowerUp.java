@@ -24,26 +24,10 @@ public class PowerUp {
     }
 
     public void applyEffect(Player player) {
-        switch (type) {
-            case SPEED_BOOST -> {
-                player.setSpeed(player.getSpeed() + 1);
-                System.out.println("Speed boost applied!");
-            }
-            case INVINCIBILITY -> {
-                player.setHasPowerUp(true);
-                System.out.println("Invincibility applied!");
-            }
-            case EXTRA_POINTS -> {
-                player.addScore(50);
-                System.out.println("Extra points!");
-            }
-            case FREEZE_ENEMIES -> {
-                System.out.println("Enemies frozen!");
-            }
-            case REVERSE_TIME -> {
-                System.out.println("Time reversed!");
-            }
-        }
+        player.addScore(50);
+        System.out.println("Power-up: +50 points!");
     }
+
 }
+
 

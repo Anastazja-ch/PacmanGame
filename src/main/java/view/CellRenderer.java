@@ -7,6 +7,7 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class CellRenderer extends JLabel implements TableCellRenderer {
 
@@ -32,7 +33,7 @@ public class CellRenderer extends JLabel implements TableCellRenderer {
 
     private ImageIcon loadScaledIcon(String path) {
         try {
-            ImageIcon rawIcon = new ImageIcon(getClass().getResource(path));
+            ImageIcon rawIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource(path)));
             Image scaled = rawIcon.getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_SMOOTH);
             return new ImageIcon(scaled);
         } catch (Exception e) {

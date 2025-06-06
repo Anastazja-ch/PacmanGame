@@ -22,17 +22,16 @@ public class EnemyController implements Runnable {
     @Override
     public void run() {
         while (true) {
-            if (!model.isEnemiesFrozen()) {
-                for (Enemy e : model.getEnemies()) {
-                    Direction dir = chooseDirectionAvoidingBacktracking(e);
-                    if (dir != null) {
-                        int[] last = new int[]{e.getRow(), e.getCol()};
-                        model.moveEnemy(e, dir);
-                        lastPositions.put(e, last);
-                    }
+            for (Enemy e : model.getEnemies()) {
+                Direction dir = chooseDirectionAvoidingBacktracking(e);
+                if (dir != null) {
+                    int[] last = new int[]{e.getRow(), e.getCol()};
+                    model.moveEnemy(e, dir);
+                    lastPositions.put(e, last);
                 }
-                view.updateGame();
             }
+
+            view.updateGame();
 
             try {
                 Thread.sleep(150);

@@ -3,7 +3,6 @@ package model;
 import view.GameView;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -27,7 +26,7 @@ public class GameModel {
 
 
     private final List<PowerUp> powerUps = new ArrayList<>();
-    private boolean enemiesFrozen = false;
+
 
     public GameModel(int rows, int cols) {
         this.rows = rows;
@@ -111,6 +110,36 @@ public class GameModel {
         player.setRow(newRow);
         player.setCol(newCol);
         board[newRow][newCol].setType(Cell.CellType.PLAYER);
+
+        for (Enemy enemy : enemies) {
+            if (enemy.getRow() == player.getRow() && enemy.getCol() == player.getCol()) {
+                player.loseLife();
+                System.out.println("Kolizja po ruchu gracza! Życia: " + player.getLives());
+
+                if (player.getLives() <= 0 && !gameOverShown) {
+                    gameOverShown = true;
+                    SwingUtilities.invokeLater(() -> {
+                        if (view != null) {
+                            view.showGameOverDialog();
+                        }
+                    });
+                    return;
+                } else {
+                    int r, c;
+                    do {
+                        r = random.nextInt(rows);
+                        c = random.nextInt(cols);
+                    } while (board[r][c].getType() != Cell.CellType.EMPTY);
+
+                    board[player.getRow()][player.getCol()].setType(Cell.CellType.EMPTY);
+                    player.setRow(r);
+                    player.setCol(c);
+                    board[r][c].setType(Cell.CellType.PLAYER);
+                }
+                break;
+            }
+        }
+
     }
 
     public void initiateEnemies(int count) {
@@ -152,22 +181,23 @@ public class GameModel {
         if (target.getType() == Cell.CellType.WALL || target.getType() == Cell.CellType.ENEMY) return;
 
 
+        if (target.getType() == Cell.CellType.POINT) {
+            target.setHasPointUnderneath(true);
+        }
+
         if (target.getType() == Cell.CellType.PLAYER) {
             player.loseLife();
             System.out.println("Kolizja! Pozostałe życia: " + player.getLives());
 
             if (player.getLives() <= 0 && !gameOverShown) {
                 gameOverShown = true;
-
                 SwingUtilities.invokeLater(() -> {
                     if (view != null) {
                         view.showGameOverDialog();
                     }
                 });
-
                 return;
             } else {
-
                 int r, c;
                 do {
                     r = random.nextInt(rows);
@@ -181,8 +211,14 @@ public class GameModel {
             }
         }
 
+        Cell previous = board[currentRow][currentCol];
+        if (previous.hasPointUnderneath()) {
+            previous.setType(Cell.CellType.POINT);
+            previous.setHasPointUnderneath(false);
+        } else {
+            previous.setType(Cell.CellType.EMPTY);
+        }
 
-        board[currentRow][currentCol].setType(Cell.CellType.EMPTY);
         board[newRow][newCol].setType(Cell.CellType.ENEMY);
         enemy.setRow(newRow);
         enemy.setCol(newCol);
@@ -234,8 +270,6 @@ public class GameModel {
     }
 
 
-
-
     public int getRows() {
         return rows;
     }
@@ -257,8 +291,5 @@ public class GameModel {
     }
 
 
-    public boolean isEnemiesFrozen() {
-        return enemiesFrozen;
-    }
 }
 
