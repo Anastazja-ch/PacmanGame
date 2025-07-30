@@ -10,10 +10,10 @@ Gra typu PacMan napisana w Javie z użyciem Swing, MVC i programowania obiektowe
 - Przeciwnicy poruszający się automatycznie
 - Kolorowa plansza (JTable) z renderowaniem typu komórek
 - Power-upy pojawiające się losowo:
-  - ❄️ Zamrażanie wrogów na 5 sekund (`FREEZE_ENEMIES`)
-  - 🛡️ Nietykalność gracza na 5 sekund (`INVINCIBILITY`)
-  - 🏃 Przyspieszenie gracza (`SPEED_BOOST`)
-  - 💰 Dodatkowe punkty (`EXTRA_POINTS`)
+  - ❄️ Zamrażanie wrogów na 5 sekund (`FREEZE_ENEMIES`) ❄️
+  - 🛡️ Nietykalność gracza na 5 sekund (`INVINCIBILITY`) 🛡️
+  - 🏃 Przyspieszenie gracza (`SPEED_BOOST`) 🏃
+  - 💰 Dodatkowe punkty (`EXTRA_POINTS`) 💰
 
 ## Technologie
 
@@ -21,6 +21,6 @@ Gra typu PacMan napisana w Javie z użyciem Swing, MVC i programowania obiektowe
 - Swing (JFrame, JTable, TableCellRenderer)
 - MVC (Model-View-Controller)
 
-## 🕹️ Sterowanie
+## Sterowanie
 
 - Strzałki ←↑↓→ — poruszanie PacManem
