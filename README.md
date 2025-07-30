@@ -1,8 +1,8 @@
-# 🎮 PacMan Game in Java
+#  PacMan Game in Java
 
 Gra typu PacMan napisana w Javie z użyciem Swing, MVC i programowania obiektowego.
 
-## 🚀 Funkcjonalności
+## Funkcjonalności
 
 - Losowo generowany labirynt
 - Sterowanie graczem za pomocą klawiatury
@@ -15,7 +15,7 @@ Gra typu PacMan napisana w Javie z użyciem Swing, MVC i programowania obiektowe
   - 🏃 Przyspieszenie gracza (`SPEED_BOOST`)
   - 💰 Dodatkowe punkty (`EXTRA_POINTS`)
 
-## 📦 Technologie
+## Technologie
 
 - Java 17+ (działa też na JDK 21)
 - Swing (JFrame, JTable, TableCellRenderer)
